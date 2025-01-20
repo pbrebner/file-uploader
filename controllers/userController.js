@@ -1,18 +1,21 @@
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
 
+import prisma from "../prisma/initiate";
+
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
 
 // Set up passport to authenticate login
-/*
-TODO: Update to use with PostgreSQL and Prisma
-
 passport.use(
     new LocalStrategy(async (username, password, done) => {
         try {
-            const user = await User.findOne({ email: username });
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: username,
+                },
+            });
             if (!user) {
                 return done(null, false, { message: "Incorrect username" });
             }
@@ -36,13 +39,16 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
     try {
-        const user = await User.findById(id);
+        const user = await prisma.user.findUnique({
+            where: {
+                id: id,
+            },
+        });
         done(null, user);
     } catch (err) {
         done(err);
     }
 });
-*/
 
 // Display Sign-Up Form on Get
 exports.signUpGet = (req, res, next) => {
@@ -50,8 +56,6 @@ exports.signUpGet = (req, res, next) => {
 };
 
 // Handle Sign-up Form Post
-/*
-TODO: Update to use with PostgreSQL and Prisma
 
 exports.signUpPost = [
     // Validate and sanatize the inputs
@@ -67,7 +71,11 @@ exports.signUpPost = [
         .trim()
         .isEmail()
         .custom(async (value) => {
-            const user = await User.find({ email: value });
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: value,
+                },
+            });
             if (user.length > 0) {
                 throw new Error(
                     "Email is already in use, please use a different one."
@@ -89,31 +97,32 @@ exports.signUpPost = [
             if (err) {
                 return next(err);
             } else {
-                //Create User object with data
-                const user = new User({
-                    firstName: req.body.firstName,
-                    lastName: req.body.lastName,
-                    email: req.body.email,
-                    password: hashedPassword,
-                    memberStatus: true,
-                });
-
-                // If errors exist, render form page with errors
+                // If errors exist, Re-render form page with errors
                 if (!errors.isEmpty()) {
                     res.render("sign-up", {
                         title: "Sign-up Form",
-                        user: user,
+                        user: {
+                            firstName: req.body.firstName,
+                            lastName: req.body.lastName,
+                            email: req.body.email,
+                        },
                         errors: errors.array(),
                     });
                 } else {
-                    await user.save();
-                    res.redirect("/log-in");
+                    const user = await prisma.user.create({
+                        data: {
+                            email: req.body.email,
+                            firstName: req.body.firstName,
+                            lastName: req.body.lastName,
+                            password: hashedPassword,
+                        },
+                    });
+                    res.redirect("/");
                 }
             }
         });
     }),
 ];
-*/
 
 // Display Log-In on Get
 exports.logInGet = (req, res, next) => {
