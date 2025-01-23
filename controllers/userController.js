@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
 
-import prisma from "../prisma/initiate";
+const prisma = require("../prisma/initiate");
 
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
@@ -52,7 +52,7 @@ passport.deserializeUser(async (id, done) => {
 
 // Display Sign-Up Form on Get
 exports.signUpGet = (req, res, next) => {
-    res.render("sign-up", { title: "Sign Up Form" });
+    res.render("signUp", { title: "Sign Up Form" });
 };
 
 // Handle Sign-up Form Post
@@ -99,7 +99,7 @@ exports.signUpPost = [
             } else {
                 // If errors exist, Re-render form page with errors
                 if (!errors.isEmpty()) {
-                    res.render("sign-up", {
+                    res.render("signUp", {
                         title: "Sign-up Form",
                         user: {
                             firstName: req.body.firstName,
@@ -109,7 +109,7 @@ exports.signUpPost = [
                         errors: errors.array(),
                     });
                 } else {
-                    const user = await prisma.user.create({
+                    await prisma.user.create({
                         data: {
                             email: req.body.email,
                             firstName: req.body.firstName,
@@ -123,11 +123,6 @@ exports.signUpPost = [
         });
     }),
 ];
-
-// Display Log-In on Get
-exports.logInGet = (req, res, next) => {
-    res.render("log-in", { title: "Log In" });
-};
 
 // Handle Log-In Post
 exports.logInPost = (req, res) => {
@@ -146,7 +141,7 @@ exports.logInPost = (req, res) => {
         } else {
             console.log(options.message); // Prints the reason of the failure
             // HANDLE FAILURE LOGGING IN
-            res.render("log-in", { title: "Log In", errors: options.message });
+            res.render("index", { title: "Index", errors: options.message });
         }
     })(req, res);
 };

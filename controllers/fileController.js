@@ -20,7 +20,7 @@ exports.getFiles = asyncHandler(async (req, res, next) => {
             files: files,
         });
     } else {
-        res.redirect("/log-in");
+        res.redirect("/");
     }
 });
 
@@ -59,7 +59,7 @@ exports.createFile = [
                 });
             }
         } else {
-            res.redirect("/log-in");
+            res.redirect("/");
         }
     }),
 ];
@@ -79,7 +79,7 @@ exports.getFile = asyncHandler(async (req, res, next) => {
             file: file,
         });
     } else {
-        res.redirect("/log-in");
+        res.redirect("/");
     }
 });
 
@@ -105,6 +105,6 @@ exports.deleteFile = asyncHandler(async (req, res, next) => {
             res.redirect(`/folders/${req.params.folderId}/files`);
         }
     } else {
-        res.redirect("/log-in");
+        res.redirect("/");
     }
 });

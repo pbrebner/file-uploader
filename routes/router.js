@@ -27,7 +27,10 @@ router.post("folders/:folderId/files", fileController.createFile);
 
 router.get("/folders/:folderId/files/:fileId", fileController.getFile);
 
-router.post("/folders/:folderId/files/:fileId", fileController.deleteFile);
+router.post(
+    "/folders/:folderId/files/:fileId/delete",
+    fileController.deleteFile
+);
 
 // USER ROUTES
 
@@ -36,9 +39,6 @@ router.get("/sign-up", userController.signUpGet);
 
 // Post sign-up page
 router.post("/sign-up", userController.signUpPost);
-
-// Get log-in page
-router.get("/log-in", userController.logInGet);
 
 // Post log-in page
 router.post("/log-in", userController.logInPost);
