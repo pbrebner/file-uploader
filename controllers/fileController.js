@@ -2,21 +2,24 @@ const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
 
 const prisma = require("../prisma/initiate");
-const { title } = require("process");
 
 // Gets all files of folder
 exports.getFiles = asyncHandler(async (req, res, next) => {
     if (req.user) {
-        // TODO: DO YOU NEED USERID IN QUERY?
         const files = await prisma.file.findMany({
             where: {
                 folderId: req.params.folderId,
-                userId: req.user.id,
+            },
+            include: {
+                folder: true,
             },
         });
 
-        res.render("files", {
-            title: "Folder Name",
+        let folder = files[0].folder;
+
+        res.render("folder", {
+            title: `${folder.folderName}`,
+            folder: folder,
             files: files,
         });
     } else {
@@ -40,12 +43,17 @@ exports.createFile = [
                 const files = await prisma.file.findMany({
                     where: {
                         folderId: req.params.folderId,
-                        userId: req.user.id,
+                    },
+                    include: {
+                        folder: true,
                     },
                 });
 
-                res.render("files", {
-                    title: "Folder Name",
+                let folder = files[0].folder;
+
+                res.render("folder", {
+                    title: `${folder.folderName}`,
+                    folder: folder,
                     files: files,
                     errors: errors.array(),
                 });
@@ -67,15 +75,18 @@ exports.createFile = [
 // Gets File details
 exports.getFile = asyncHandler(async (req, res, next) => {
     if (req.user) {
-        // TODO: DO YOU NEED USERID IN QUERY?
         const file = await prisma.file.findUnique({
             where: {
                 id: req.params.fileId,
+            },
+            include: {
+                folder: true,
             },
         });
 
         res.render("file", {
             title: file.fileName,
+            folder: file.folder,
             file: file,
         });
     } else {
@@ -94,7 +105,9 @@ exports.deleteFile = asyncHandler(async (req, res, next) => {
 
         if (!file) {
             // No file in database (return error)
-            // TODO: RERENDER PAGE WITH ERROR
+            res.render("error", {
+                errors: [{ msg: "Could not locate file requested." }],
+            });
         } else {
             // All good, delete the file
             await prisma.file.delete({

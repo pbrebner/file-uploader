@@ -8,12 +8,11 @@ exports.getFolders = asyncHandler(async (req, res, next) => {
     if (req.user) {
         const folders = await prisma.folder.findMany({
             where: {
-                // TODO: Confirm that this is how I would access user id
                 userId: req.user.id,
             },
         });
 
-        res.render("folders", {
+        res.render("index", {
             folders: folders,
         });
     } else {
@@ -39,18 +38,18 @@ exports.createFolder = [
                     },
                 });
 
-                res.render("folders", {
+                res.render("index", {
                     folders: folders,
                     errors: errors.array(),
                 });
             } else {
-                // TODO: Confirm that this is how userId should be added. This updates users folder attribute?
                 await prisma.folder.create({
                     data: {
                         folderName: req.body.folderName,
                         userId: req.user.id,
                     },
                 });
+                res.redirect("/folders");
             }
         } else {
             res.redirect("/");
@@ -81,10 +80,21 @@ exports.deleteFolder = asyncHandler(async (req, res, next) => {
 
         if (!folder) {
             // No folder in database (return error)
-            // TODO: RERENDER PAGE WITH ERROR
+            res.render("error", {
+                errors: [{ msg: "Could not locate file requested." }],
+            });
         } else if (folder.files.length != 0) {
             // There are files in the folder still (return error)
-            // TODO: RERENDER PAGE WITH ERROR
+            res.render("folder", {
+                title: `${folder.folderName}`,
+                folder: folder,
+                files: folder.files,
+                errors: [
+                    {
+                        msg: "Can't delete folder that contains existing files. Please delete files first",
+                    },
+                ],
+            });
         } else {
             // All good, delete the folder
             await prisma.folder.delete({
