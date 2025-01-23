@@ -1,0 +1,38 @@
+<!-- views/index.ejs -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= title %></title>
+    </head>
+    <body>
+        <%- include('header'); -%>
+        <main>
+            <% if (locals.currentUser) { %>
+            <h2>Folders</h2>
+            <p>Add list of folders...</p>
+            <h2>New Folder</h2>
+            <form action="/folders" method="post">
+                <label for="folderName">New Folder Name:</label>
+                <input type="text" name="folderName" id="folderName" />
+                <button type="submit">Submit</button>
+            </form>
+            <% } else { %>
+            <h2>Log In</h2>
+            <form action="/log-in" method="post">
+                <label for="email">Email: </label>
+                <input type="email" name="email" id="email" />
+                <label for="password">Password: </label>
+                <input type="password" name="password" id="passsword" />
+                <button type="submit">Submit</button>
+            </form>
+            <% } %> <% if (locals.errors) { %>
+            <ul>
+                <% errors.forEach((error) => { %>
+                <li style="color: red"><%= error.msg %></li>
+                <% });%>
+            </ul>
+            <% } %>
+        </main>
+        <%- include('footer'); -%>
+    </body>
+</html>

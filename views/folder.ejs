@@ -1,0 +1,32 @@
+<!-- views/folder.ejs -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= title %></title>
+    </head>
+    <body>
+        <%- include('header'); -%>
+        <main>
+            <h2><% title %></h2>
+            <p>Add list of files...</p>
+            <h2>New File</h2>
+            <form action= <%= `folders/${folder.id}/files %> method="post">
+                <label for="fileName">New File Name:</label>
+                <input type="text" name="fileName" id="fileName" />
+                <button type="submit">Submit</button>
+            </form>
+            <h3>Delete Folder?</h3>
+            <form action= <%= `folders/${folder.id}/delete %> method="post">
+                <button type="submit">Delete Folder</button>
+            </form>
+            <% if (locals.errors) { %>
+            <ul>
+                <% errors.forEach((error) => { %>
+                <li style="color: red"><%= error.msg %></li>
+                <% });%>
+            </ul>
+            <% } %>
+        </main>
+        <%- include('footer'); -%>
+    </body>
+</html>

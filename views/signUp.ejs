@@ -1,0 +1,38 @@
+<!-- views/signUp.ejs -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= title %></title>
+    </head>
+    <body>
+        <%- include('header'); -%>
+        <main>
+            <h2><%= title %></h2>
+            <form action="/log-in" method="post">
+                <label for="firstName">First Name: </label>
+                <input type="text" name="firstName" id="firstName" />
+                <label for="lastName">Last Name: </label>
+                <input type="text" name="lastName" id="lastName" />
+                <label for="email">Email: </label>
+                <input type="email" name="email" id="email" />
+                <label for="password">Password: </label>
+                <input type="password" name="password" id="passsword" />
+                <label for="passwordConfirm">Confirm Password: </label>
+                <input
+                    type="password"
+                    name="passwordConfirm"
+                    id="passswordConfirm"
+                />
+                <button type="submit">Submit</button>
+            </form>
+            <% if (locals.errors) { %>
+            <ul>
+                <% errors.forEach((error) => { %>
+                <li style="color: red"><%= error.msg %></li>
+                <% });%>
+            </ul>
+            <% } %>
+        </main>
+        <%- include('footer'); -%>
+    </body>
+</html>
