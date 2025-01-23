@@ -1,0 +1,22 @@
+<!-- views/index.ejs -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= title %></title>
+    </head>
+    <body>
+        <%- include('header'); -%>
+        <main>
+            <h2>Unfortunately a problem occured with your last request...</h2>
+            <% if (locals.errors) { %>
+            <p>Due to the following errors:</p>
+            <ul>
+                <% errors.forEach((error) => { %>
+                <li style="color: red"><%= error.msg %></li>
+                <% });%>
+            </ul>
+            <% } %>
+        </main>
+        <%- include('footer'); -%>
+    </body>
+</html>
