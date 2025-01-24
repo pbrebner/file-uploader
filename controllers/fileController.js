@@ -6,16 +6,16 @@ const prisma = require("../prisma/initiate");
 // Gets all files of folder
 exports.getFiles = asyncHandler(async (req, res, next) => {
     if (req.user) {
-        const files = await prisma.file.findMany({
+        const folder = await prisma.folder.findUnique({
             where: {
-                folderId: req.params.folderId,
-            },
-            include: {
-                folder: true,
+                id: Number(req.params.folderId),
             },
         });
-
-        let folder = files[0].folder;
+        const files = await prisma.file.findMany({
+            where: {
+                folderId: Number(req.params.folderId),
+            },
+        });
 
         res.render("folder", {
             title: `${folder.folderName}`,
@@ -40,16 +40,16 @@ exports.createFile = [
             const errors = validationResult(req);
 
             if (!errors.isEmpty()) {
-                const files = await prisma.file.findMany({
+                const folder = await prisma.folder.findUnique({
                     where: {
-                        folderId: req.params.folderId,
-                    },
-                    include: {
-                        folder: true,
+                        id: Number(req.params.folderId),
                     },
                 });
-
-                let folder = files[0].folder;
+                const files = await prisma.file.findMany({
+                    where: {
+                        folderId: Number(req.params.folderId),
+                    },
+                });
 
                 res.render("folder", {
                     title: `${folder.folderName}`,
@@ -61,7 +61,7 @@ exports.createFile = [
                 await prisma.file.create({
                     data: {
                         fileName: req.body.fileName,
-                        folderId: req.params.folderId,
+                        folderId: Number(req.params.folderId),
                         userId: req.user.id,
                     },
                 });
@@ -77,7 +77,7 @@ exports.getFile = asyncHandler(async (req, res, next) => {
     if (req.user) {
         const file = await prisma.file.findUnique({
             where: {
-                id: req.params.fileId,
+                id: Number(req.params.fileId),
             },
             include: {
                 folder: true,
@@ -99,7 +99,7 @@ exports.deleteFile = asyncHandler(async (req, res, next) => {
     if (req.user) {
         const file = await prisma.file.findUnique({
             where: {
-                id: req.params.fileId,
+                id: Number(req.params.fileId),
             },
         });
 
@@ -113,7 +113,7 @@ exports.deleteFile = asyncHandler(async (req, res, next) => {
             // All good, delete the file
             await prisma.file.delete({
                 where: {
-                    id: req.params.fileId,
+                    id: Number(req.params.fileId),
                 },
             });
             res.redirect(`/folders/${req.params.folderId}/files`);

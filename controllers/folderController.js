@@ -76,7 +76,7 @@ exports.deleteFolder = asyncHandler(async (req, res, next) => {
     if (req.user) {
         const folder = await prisma.folder.findUnique({
             where: {
-                id: req.params.folderId,
+                id: Number(req.params.folderId),
             },
             include: {
                 files: true,
@@ -105,7 +105,7 @@ exports.deleteFolder = asyncHandler(async (req, res, next) => {
             // All good, delete the folder
             await prisma.folder.delete({
                 where: {
-                    id: req.params.folderId,
+                    id: Number(req.params.folderId),
                 },
             });
             res.redirect("/folders");
