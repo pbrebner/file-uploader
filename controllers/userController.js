@@ -9,28 +9,34 @@ const bcrypt = require("bcryptjs");
 
 // Set up passport to authenticate login
 passport.use(
-    new LocalStrategy(async (username, password, done) => {
-        try {
-            const user = await prisma.user.findUnique({
-                where: {
-                    email: username,
-                },
-            });
-            if (!user) {
-                return done(null, false, { message: "Incorrect username" });
-            }
-            const match = await bcrypt.compare(password, user.password);
-            if (!match) {
-                // passwords do not match!
-                return done(null, false, {
-                    message: "Incorrect username or password",
+    new LocalStrategy(
+        {
+            usernameField: "email",
+            passwordField: "password",
+        },
+        async (email, password, done) => {
+            try {
+                const user = await prisma.user.findUnique({
+                    where: {
+                        email: email,
+                    },
                 });
+                if (!user) {
+                    return done(null, false, { message: "Incorrect username" });
+                }
+                const match = await bcrypt.compare(password, user.password);
+                if (!match) {
+                    // passwords do not match!
+                    return done(null, false, {
+                        message: "Incorrect username or password",
+                    });
+                }
+                return done(null, user);
+            } catch (err) {
+                return done(err);
             }
-            return done(null, user);
-        } catch (err) {
-            return done(err);
         }
-    })
+    )
 );
 
 passport.serializeUser((user, done) => {
@@ -76,7 +82,7 @@ exports.signUpPost = [
                     email: value,
                 },
             });
-            if (user.length > 0) {
+            if (user && user.length > 0) {
                 throw new Error(
                     "Email is already in use, please use a different one."
                 );
@@ -141,7 +147,10 @@ exports.logInPost = (req, res) => {
         } else {
             console.log(options.message); // Prints the reason of the failure
             // HANDLE FAILURE LOGGING IN
-            res.render("index", { title: "Log In", errors: options.message });
+            res.render("index", {
+                title: "Log In",
+                errors: [{ msg: options.message }],
+            });
         }
     })(req, res);
 };
