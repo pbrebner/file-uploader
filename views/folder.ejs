@@ -7,16 +7,26 @@
     <body>
         <%- include('header'); -%>
         <main>
-            <h2><% title %></h2>
-            <p>Add list of files...</p>
-            <h2>New File</h2>
-            <form action= <%= `folders/${folder.id}/files %> method="post">
+            <h2><%= title %></h2>
+            <% if (files.length > 0) { %>
+                <ul>
+                    <% files.forEach((file) => { %>
+                        <a href=<%= `/folders/${folder.id}/files/${file.id}` %>> 
+                            <li><%= file.fileName %></li>
+                        </a>
+                    <% });%>
+                </ul>
+            <% } else { %>
+                <p>There are no files in this folder.</p>
+            <% } %>
+            <h3>New File</h3>
+            <form action= <%= `/folders/${folder.id}/files` %> method="post">
                 <label for="fileName">New File Name:</label>
                 <input type="text" name="fileName" id="fileName" />
                 <button type="submit">Submit</button>
             </form>
             <h3>Delete Folder?</h3>
-            <form action= <%= `folders/${folder.id}/delete %> method="post">
+            <form action= <%= `/folders/${folder.id}/delete` %> method="post">
                 <button type="submit">Delete Folder</button>
             </form>
             <% if (locals.errors) { %>

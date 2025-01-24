@@ -9,8 +9,18 @@
         <main>
             <% if (locals.currentUser) { %>
             <h2>Folders</h2>
-            <p>Add list of folders...</p>
-            <h2>New Folder</h2>
+            <% if (folders.length > 0) { %>
+                <ul>
+                    <% folders.forEach((folder) => { %>
+                        <a href=<%= `/folders/${folder.id}` %>> 
+                            <li><%= folder.folderName %></li>
+                        </a>
+                    <% });%>
+                </ul>
+            <% } else { %>
+                <p>There are no folders.</p>
+            <% } %>
+            <h3>New Folder</h3>
             <form action="/folders" method="post">
                 <label for="folderName">New Folder Name:</label>
                 <input type="text" name="folderName" id="folderName" />
