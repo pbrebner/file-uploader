@@ -21,9 +21,9 @@ router.post("/folders/:folderId/delete", folderController.deleteFolder);
 
 // FILE ROUTES
 
-router.get("folders/:folderId/files", fileController.getFiles);
+router.get("/folders/:folderId/files", fileController.getFiles);
 
-router.post("folders/:folderId/files", fileController.createFile);
+router.post("/folders/:folderId/files", fileController.createFile);
 
 router.get("/folders/:folderId/files/:fileId", fileController.getFile);
 
