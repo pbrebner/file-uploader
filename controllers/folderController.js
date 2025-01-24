@@ -13,10 +13,14 @@ exports.getFolders = asyncHandler(async (req, res, next) => {
         });
 
         res.render("index", {
+            title: "Folders",
             folders: folders,
         });
     } else {
-        res.redirect("/");
+        res.render("index", {
+            title: "Log In",
+            folders: [],
+        });
     }
 });
 
@@ -39,6 +43,7 @@ exports.createFolder = [
                 });
 
                 res.render("index", {
+                    title: "Folders",
                     folders: folders,
                     errors: errors.array(),
                 });
@@ -81,6 +86,7 @@ exports.deleteFolder = asyncHandler(async (req, res, next) => {
         if (!folder) {
             // No folder in database (return error)
             res.render("error", {
+                title: "Error",
                 errors: [{ msg: "Could not locate file requested." }],
             });
         } else if (folder.files.length != 0) {

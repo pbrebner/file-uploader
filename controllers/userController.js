@@ -52,7 +52,7 @@ passport.deserializeUser(async (id, done) => {
 
 // Display Sign-Up Form on Get
 exports.signUpGet = (req, res, next) => {
-    res.render("signUp", { title: "Sign Up Form" });
+    res.render("signUp", { title: "Sign Up" });
 };
 
 // Handle Sign-up Form Post
@@ -100,7 +100,7 @@ exports.signUpPost = [
                 // If errors exist, Re-render form page with errors
                 if (!errors.isEmpty()) {
                     res.render("signUp", {
-                        title: "Sign-up Form",
+                        title: "Sign-up",
                         user: {
                             firstName: req.body.firstName,
                             lastName: req.body.lastName,
@@ -135,13 +135,13 @@ exports.logInPost = (req, res) => {
                 } else {
                     console.log("Successfully authenticated");
                     // HANDLE SUCCESSFUL LOGIN
-                    res.redirect("/");
+                    res.redirect("/folders");
                 }
             });
         } else {
             console.log(options.message); // Prints the reason of the failure
             // HANDLE FAILURE LOGGING IN
-            res.render("index", { title: "Index", errors: options.message });
+            res.render("index", { title: "Log In", errors: options.message });
         }
     })(req, res);
 };

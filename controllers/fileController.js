@@ -106,6 +106,7 @@ exports.deleteFile = asyncHandler(async (req, res, next) => {
         if (!file) {
             // No file in database (return error)
             res.render("error", {
+                title: "Error",
                 errors: [{ msg: "Could not locate file requested." }],
             });
         } else {
