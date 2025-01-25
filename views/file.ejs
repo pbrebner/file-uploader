@@ -7,12 +7,12 @@
     <body>
         <%- include('header'); -%>
         <main>
-            <h2><% title %></h2>
-            <p>File size: </p>
-            <p>Created At: </p>
+            <h2><%= title %></h2>
+            <p>File size: <%= file.size %></p>
+            <p>Created At: <%= file.createdAt %> </p>
             
-            <h3>Delete File?</h3>
-            <form action= <%= `folders/${folder.id}/files/${file.id}/delete %> method="post">
+            <h3>Delete File</h3>
+            <form action= <%= `/folders/${file.folderId}/files/${file.id}/delete` %> method="post">
                 <button type="submit">Delete File</button>
             </form>
             <% if (locals.errors) { %>

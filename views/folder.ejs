@@ -20,12 +20,14 @@
                 <p>There are no files in this folder.</p>
             <% } %>
             <h3>New File</h3>
-            <form action= <%= `/folders/${folder.id}/files` %> method="post">
-                <label for="fileName">New File Name:</label>
+            <form action= <%= `/folders/${folder.id}/files` %> method="post" enctype="multipart/form-data">
+                <label for="fileName">File Name (optional):</label>
                 <input type="text" name="fileName" id="fileName" />
+                <label for="fileUpload">File: </label>
+                <input type="file" name="fileUpload" id="fileUpload">
                 <button type="submit">Submit</button>
             </form>
-            <h3>Delete Folder?</h3>
+            <h3>Delete Folder</h3>
             <form action= <%= `/folders/${folder.id}/delete` %> method="post">
                 <button type="submit">Delete Folder</button>
             </form>
