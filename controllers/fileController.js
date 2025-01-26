@@ -10,8 +10,9 @@ const storage = multer.diskStorage({
         cb(null, "uploads/");
     },
     filename: (req, file, cb) => {
+        const fileType = file.mimetype.split("/")[1];
         const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e3);
-        cb(null, file.fieldname + "-" + uniqueSuffix);
+        cb(null, file.fieldname + "-" + uniqueSuffix + "." + fileType);
     },
 });
 const upload = multer({ storage: storage });
@@ -87,6 +88,7 @@ exports.createFile = [
                     errors: errors.array(),
                 });
             } else {
+                console.log(req.file);
                 await prisma.file.create({
                     data: {
                         fileName: req.body.fileName || req.file.filename,
@@ -117,6 +119,21 @@ exports.getFile = asyncHandler(async (req, res, next) => {
             title: file.fileName,
             file: file,
         });
+    } else {
+        res.redirect("/");
+    }
+});
+
+// Download File
+exports.downloadFile = asyncHandler(async (req, res, next) => {
+    if (req.user) {
+        const file = await prisma.file.findUnique({
+            where: {
+                id: Number(req.params.fileId),
+            },
+        });
+
+        res.download(file.path);
     } else {
         res.redirect("/");
     }

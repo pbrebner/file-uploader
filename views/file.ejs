@@ -8,9 +8,14 @@
         <%- include('header'); -%>
         <main>
             <h2><%= title %></h2>
-            <p>File size: <%= file.size %></p>
+            <p>File size: <%= file.size %> bytes</p>
             <p>Created At: <%= file.createdAt %> </p>
-            
+
+            <h3>Download File</h3>
+            <form action= <%= `/folders/${file.folderId}/files/${file.id}/download` %> method="get">
+                <button type="submit">Download File</button>
+            </form>
+
             <h3>Delete File</h3>
             <form action= <%= `/folders/${file.folderId}/files/${file.id}/delete` %> method="post">
                 <button type="submit">Delete File</button>

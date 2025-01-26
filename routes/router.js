@@ -27,6 +27,11 @@ router.post("/folders/:folderId/files", fileController.createFile);
 
 router.get("/folders/:folderId/files/:fileId", fileController.getFile);
 
+router.get(
+    "/folders/:folderId/files/:fileId/download",
+    fileController.downloadFile
+);
+
 router.post(
     "/folders/:folderId/files/:fileId/delete",
     fileController.deleteFile
