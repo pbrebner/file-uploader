@@ -1,10 +1,13 @@
+require("dotenv").config();
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
 
 const prisma = require("../prisma/initiate");
-const fs = require("fs");
 
 const multer = require("multer");
+
+// Storing the files locally
+/*
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, "uploads/");
@@ -16,6 +19,22 @@ const storage = multer.diskStorage({
     },
 });
 const upload = multer({ storage: storage });
+*/
+
+// Storing file on cloudinary
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUD_KEY,
+    api_secret: process.env.CLOUD_SECRET,
+});
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+const https = require("https");
+const fs = require("fs");
 
 // Gets all files of folder
 exports.getFiles = asyncHandler(async (req, res, next) => {
@@ -54,12 +73,12 @@ exports.createFile = [
         .trim()
         .custom((value, { req }) => {
             const file = req.file;
-            const allowedSize = 500000; // 5MB file size limit
+            const allowedSize = 10; // 10MB file size limit
 
             if (!file) {
                 throw new Error("Please add a file to upload.");
-            } else if (file.size > allowedSize) {
-                throw new Error("File size is too large. 5MB maximum.");
+            } else if (file.size / (1024 * 1024) > allowedSize) {
+                throw new Error("File size is too large. 10MB maximum.");
             } else {
                 return true;
             }
@@ -88,7 +107,8 @@ exports.createFile = [
                     errors: errors.array(),
                 });
             } else {
-                console.log(req.file);
+                /*
+                // Upload files locally
                 await prisma.file.create({
                     data: {
                         fileName: req.body.fileName || req.file.filename,
@@ -98,6 +118,27 @@ exports.createFile = [
                         userId: req.user.id,
                     },
                 });
+                */
+
+                // Upload file to cloudinary
+                const uploadResult = await new Promise((resolve) => {
+                    cloudinary.uploader
+                        .upload_stream((error, uploadResult) => {
+                            return resolve(uploadResult);
+                        })
+                        .end(req.file.buffer);
+                });
+
+                await prisma.file.create({
+                    data: {
+                        fileName: req.body.fileName || req.file.originalname,
+                        size: req.file.size,
+                        path: uploadResult.secure_url,
+                        folderId: Number(req.params.folderId),
+                        userId: req.user.id,
+                    },
+                });
+
                 res.redirect(`/folders/${req.params.folderId}/files`);
             }
         } else {
@@ -133,7 +174,36 @@ exports.downloadFile = asyncHandler(async (req, res, next) => {
             },
         });
 
-        res.download(file.path);
+        //res.download(file.path); (Only download from local path)
+
+        const fileUrl = file.path;
+        const fileName = file.path.split("/").at(-1);
+        const destination = `downloads/${fileName}`;
+
+        const fileStream = fs.createWriteStream(destination);
+
+        // download file from cloudinary to downloads folder
+        // This does not work with PDFs due to cloudinary security access. Will return blank PDF
+        // Images work as expected
+        https
+            .get(fileUrl, (response) => {
+                response.pipe(fileStream);
+                fileStream.on("finish", () => {
+                    fileStream.close(() => {
+                        console.log("File downloaded successfully");
+                    });
+                });
+            })
+            .on("error", (err) => {
+                fs.unlink(destination, () => {
+                    console.error("Error downloading file:", err);
+                });
+            });
+
+        res.render("file", {
+            title: file.fileName,
+            file: file,
+        });
     } else {
         res.redirect("/");
     }
@@ -162,10 +232,22 @@ exports.deleteFile = asyncHandler(async (req, res, next) => {
                 },
             });
 
-            // Delete file from file system
+            // Delete file from file system (When stored locally)
+            /*
             fs.unlink(file.path, (err) => {
                 if (err) {
                     throw err;
+                }
+            });
+            */
+
+            // Get public id and delete file off cloudinary
+            const publicId = file.path.split("/").at(-1).split(".")[0];
+            cloudinary.uploader.destroy(publicId, function (error, result) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log(result);
                 }
             });
 
